@@ -1,0 +1,16 @@
+{
+  "name": "询单登记 · 多门店接单管理平台",
+  "short_name": "询单登记",
+  "description": "连锁门店客户询单、报价、接单登记与提成统计平台",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f4f6fb",
+  "theme_color": "#1f6feb",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
