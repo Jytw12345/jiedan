@@ -11,13 +11,54 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="询单登记" />
     <title>询单登记 · 多门店接单管理平台</title>
-    <script type="module" crossorigin src="./assets/index-D0lYq-7P.js"></script>
-    <link rel="modulepreload" crossorigin href="./assets/react-DXTw1DA_.js">
+
+    <!-- 首屏启动样式：内联，不依赖任何外链资源，JS 未执行也不白屏 -->
+    <style>
+      :root { --bg: #f4f6fb; --text: #1f2733; --text-soft: #6b7686; --primary: #1f6feb; }
+      html, body, #root { height: 100%; margin: 0; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        background: var(--bg); color: var(--text);
+      }
+      .launch { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: var(--bg); }
+      .launch-mark { width: 52px; height: 52px; border-radius: 14px; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; box-shadow: 0 8px 24px rgba(31, 111, 235, 0.28); }
+      .launch-title { font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+      .launch-text { font-size: 12px; color: var(--text-soft); }
+      .launch-bar { width: 120px; height: 3px; border-radius: 2px; background: rgba(31, 111, 235, 0.15); overflow: hidden; }
+      .launch-bar i { display: block; height: 100%; width: 40%; border-radius: 2px; background: var(--primary); animation: launchmove 1.1s ease-in-out infinite; }
+      @keyframes launchmove { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
+    </style>
+
+    <!-- 主题色前置：避免 index.css 加载前先闪一帧默认蓝 -->
+    <script>
+      (function () {
+        var P = [
+          ['#1f6feb', '#1559c4'], ['#16a34a', '#12813c'], ['#7c3aed', '#6528d9'],
+          ['#ea580c', '#c2410c'], ['#0891b2', '#0e7490'], ['#dc2626', '#b91c1c'],
+        ]
+        var i = Number(localStorage.getItem('xd_theme') || '0')
+        var t = P[i] || P[0]
+        var r = document.documentElement.style
+        r.setProperty('--primary', t[0])
+        r.setProperty('--primary-dark', t[1])
+        var m = document.querySelector('meta[name="theme-color"]')
+        if (m) m.setAttribute('content', t[0])
+      })()
+    </script>
+    <script type="module" crossorigin src="./assets/index-B3pQLbX7.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/react-CReieBHD.js">
     <link rel="modulepreload" crossorigin href="./assets/supabase-3Te545q_.js">
-    <link rel="modulepreload" crossorigin href="./assets/charts-DLMWAyIM.js">
-    <link rel="stylesheet" crossorigin href="./assets/index-TqUKzdQL.css">
+    <link rel="modulepreload" crossorigin href="./assets/charts-BMSAnzJO.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-miyUGeDm.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="launch">
+        <div class="launch-mark">询</div>
+        <div class="launch-title">询单登记</div>
+        <div class="launch-text">正在加载…</div>
+        <div class="launch-bar"><i></i></div>
+      </div>
+    </div>
   </body>
 </html>
