@@ -3,7 +3,7 @@
  * - 缓存名含构建时间戳（构建脚本自动注入），每次发版自动检测并接管
  * - Supabase 等跨域 API 请求一律直连网络，不做缓存
  */
-const CACHE = 'xundan-' + '1789873878001'
+const CACHE = 'xundan-' + '1789883665308'
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png']
 
 self.addEventListener('install', (e) => {
