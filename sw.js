@@ -5,15 +5,21 @@
  * 发版链路：sw.js 内容每次构建必变 → 浏览器 update 检测到新 SW → install 阶段重新预缓存
  * 新外壳 → skipWaiting 接管 → 页面自动刷新 → 加载新 hash 资源（miss 时走网络并回填缓存）
  */
-const CACHE = 'xundan-' + '1790907429093'
+const CACHE = 'xundan-' + '1790910130055'
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png']
+// 构建脚本注入的全量资源清单（./assets/ 下带 hash 的 JS/CSS）。
+// 更新时在 SW 安装阶段后台预取全部资源 → skipWaiting 后 reload 首开全部缓存命中，秒进系统
+const ASSETS = ["./assets/cache-DxsDsWLS.js","./assets/charts-CLHYaTue.js","./assets/commission-Bc8JhXZ9.js","./assets/Customers-BHMiK9eh.js","./assets/CustomSelect-BrvXJyqG.js","./assets/Dashboard-eWuVkC0K.js","./assets/index-D-WrE4Ih.js","./assets/index-tdcbLPkn.css","./assets/Inquiries-BtMi2QWg.js","./assets/react-vnpKpG3P.js","./assets/RegisterInquiry-DNoA5icc.js","./assets/Reports-C_-KMS8B.js","./assets/Settings-CVaIsNYA.js","./assets/supabase-3Te545q_.js","./assets/TextareaAuto-DVK-pWmG.js"]
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches
-      .open(CACHE)
-      .then((c) => c.addAll(SHELL))
-      .then(() => self.skipWaiting()),
+    (async () => {
+      const c = await caches.open(CACHE)
+      await c.addAll(SHELL)
+      // 预缓存全部 hash 资源：逐个容错（个别失败不阻塞安装，运行时 fetch 会兜底回填）
+      await Promise.all(ASSETS.map((p) => c.add(p).catch(() => {})))
+      await self.skipWaiting()
+    })(),
   )
 })
 
