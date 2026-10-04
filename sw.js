@@ -5,20 +5,21 @@
  * 发版链路：sw.js 内容每次构建必变 → 浏览器 update 检测到新 SW → install 阶段重新预缓存
  * 新外壳 → skipWaiting 接管 → 页面自动刷新 → 加载新 hash 资源（miss 时走网络并回填缓存）
  */
-const CACHE = 'xundan-' + '1790931999635'
+const CACHE = 'xundan-' + '1791106206905'
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png']
 // 构建脚本注入的全量资源清单（./assets/ 下带 hash 的 JS/CSS）。
 // 更新时在 SW 安装阶段后台预取全部资源 → skipWaiting 后 reload 首开全部缓存命中，秒进系统
-const ASSETS = ["./assets/cache-DxsDsWLS.js","./assets/charts-CLHYaTue.js","./assets/commission-DgKaRU1D.js","./assets/Customers--q5rZWqF.js","./assets/CustomSelect-O5jtHs-g.js","./assets/Dashboard-224Qvxig.js","./assets/index-Do4RqpDR.js","./assets/index-tdcbLPkn.css","./assets/Inquiries-CYF1NhNL.js","./assets/MoneyInput-DqCOt7GV.js","./assets/react-vnpKpG3P.js","./assets/RegisterInquiry-DsZJLWPO.js","./assets/Reports-C2fjaWuj.js","./assets/Settings-Bm016KFt.js","./assets/supabase-3Te545q_.js"]
+const ASSETS = ["./assets/charts-CLHYaTue.js","./assets/commission-D-STP-oS.js","./assets/Customers-DFPUpViB.js","./assets/CustomSelect-C4_er-dD.js","./assets/Dashboard-DSJgQiOy.js","./assets/fetchAll-dQkdBPMg.js","./assets/index-D3tsr6dY.js","./assets/index-tdcbLPkn.css","./assets/Inquiries-X9KaTHUp.js","./assets/MoneyInput-COStkGce.js","./assets/react-vnpKpG3P.js","./assets/RegisterInquiry-CBYezAHg.js","./assets/Reports-WokfPbI3.js","./assets/Settings-DQAtaFjh.js","./assets/supabase-3Te545q_.js"]
 
 self.addEventListener('install', (e) => {
+  // 不自动 skipWaiting：新版本安装后进入 waiting，由用户点「立即更新」
+  // （postMessage SKIP_WAITING）才接管，避免发版瞬间强刷打断用户正在填写的表单
   e.waitUntil(
     (async () => {
       const c = await caches.open(CACHE)
       await c.addAll(SHELL)
       // 预缓存全部 hash 资源：逐个容错（个别失败不阻塞安装，运行时 fetch 会兜底回填）
       await Promise.all(ASSETS.map((p) => c.add(p).catch(() => {})))
-      await self.skipWaiting()
     })(),
   )
 })
