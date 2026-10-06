@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#1f6feb" />
     <link rel="manifest" href="./manifest.webmanifest" />
+    <!-- 提前建连：跨境 Supabase（东京）在启动时有一次鉴权/档案请求，预连接省去 DNS+TLS 握手等待 -->
+    <link rel="preconnect" href="https://jimgorniuyodxnrdsbnr.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://jimgorniuyodxnrdsbnr.supabase.co" />
     <link rel="icon" type="image/png" href="./icons/icon-192.png" />
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -45,7 +48,7 @@
         if (m) m.setAttribute('content', t[0])
       })()
     </script>
-    <script type="module" crossorigin src="./assets/index-BaoBzef6.js"></script>
+    <script type="module" crossorigin src="./assets/index-DD90fwue.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/react-vnpKpG3P.js">
     <link rel="modulepreload" crossorigin href="./assets/supabase-3Te545q_.js">
     <link rel="stylesheet" crossorigin href="./assets/index-eTL1udgc.css">
