@@ -5,7 +5,7 @@
  * 发版链路：sw.js 内容每次构建必变 → 浏览器 update 检测到新 SW → install 阶段重新预缓存
  * 新外壳 → skipWaiting 接管 → 页面自动刷新 → 加载新 hash 资源（miss 时走网络并回填缓存）
  */
-const CACHE = 'xundan-' + '1791265611034'
+const CACHE = 'xundan-' + '1791266490404'
 // 外壳底线：只有它必须成功——拿不到 index.html 的新外壳等于「离线打不开」，
 // 宁可让本次安装失败（旧版本继续可用），也不要装出一个空壳。
 const CORE = ['./index.html']
@@ -13,7 +13,7 @@ const CORE = ['./index.html']
 const SHELL = ['./', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png']
 // 构建脚本注入的全量资源清单（./assets/ 下带 hash 的 JS/CSS）。
 // 更新时在 SW 安装阶段后台预取全部资源 → skipWaiting 后 reload 首开全部缓存命中，秒进系统
-const ASSETS = ["./assets/charts-CLHYaTue.js","./assets/commission-BDx9GSZi.js","./assets/Customers-DTaJ8Vcn.js","./assets/CustomSelect-CPWbGbC4.js","./assets/Dashboard-B7h5XuPL.js","./assets/fetchAll-dQkdBPMg.js","./assets/index-B_RoNjvE.js","./assets/index-eTL1udgc.css","./assets/Inquiries-wj3-Hvtm.js","./assets/MoneyInput-C_ARPoKh.js","./assets/react-vnpKpG3P.js","./assets/RegisterInquiry-D1FFNTCn.js","./assets/Reports-BFxJ29-J.js","./assets/Settings-D_VGP3jt.js","./assets/supabase-3Te545q_.js"]
+const ASSETS = ["./assets/charts-CLHYaTue.js","./assets/commission-BZ4AoyW3.js","./assets/Customers-Cg8jFSM5.js","./assets/CustomSelect-DUHJveui.js","./assets/Dashboard-DXGMVGM3.js","./assets/fetchAll-dQkdBPMg.js","./assets/index-BaoBzef6.js","./assets/index-eTL1udgc.css","./assets/Inquiries-ce2ISgO0.js","./assets/MoneyInput-CZTScFhM.js","./assets/react-vnpKpG3P.js","./assets/RegisterInquiry-DYBSZDu0.js","./assets/Reports-D2k6hyVV.js","./assets/Settings-CyxR9cA5.js","./assets/supabase-3Te545q_.js","./assets/xlsx-D_0l8YDs.js"]
 
 // 单项预缓存，带超时。没有超时是致命的：只要有一个请求卡住（跨境网络很常见），
 // install 就永远不结束 → 新版本 SW 永远进不了 waiting → 前端点「立即更新」只能
@@ -31,18 +31,40 @@ function preloadOne(c, url, timeoutMs, noHttpCache) {
   ])
 }
 
+// 带 hash 的资源内容不可变：安装新版本时先在上一版缓存里找同一个 URL，
+// 命中就直接搬进新缓存（零网络）。否则每次发版都要把 ~1.4MB 全量重下一遍——
+// 既慢，又容易在慢网下撞上单项超时；超时被跳过的资源会缺在缓存里，
+// 更新后首开还得回源，启动屏就要多等一截。
+const CACHE_PREFIX = 'xundan-'
+async function preloadAsset(c, url, timeoutMs, olds) {
+  for (const o of olds) {
+    const hit = await o.match(url).catch(() => null)
+    if (hit) {
+      await c.put(url, hit.clone()).catch(() => {})
+      return
+    }
+  }
+  return preloadOne(c, url, timeoutMs, false)
+}
+
 self.addEventListener('install', (e) => {
   // 不自动 skipWaiting：新版本安装后进入 waiting，由用户点「立即更新」
   // （postMessage SKIP_WAITING）才接管，避免发版瞬间强刷打断用户正在填写的表单
   e.waitUntil(
     (async () => {
       const c = await caches.open(CACHE)
+      // 上一版（及更早）的缓存：仅供复用不可变资源；activate 阶段才会被清掉
+      const olds = await Promise.all(
+        (await caches.keys())
+          .filter((k) => k.startsWith(CACHE_PREFIX) && k !== CACHE)
+          .map((k) => caches.open(k)),
+      )
       // 底线：失败即抛出 → 本次安装失败 → 旧版本继续可用（前端「立即更新」有强制刷新兜底）
       await Promise.all(CORE.map((p) => preloadOne(c, p, CORE_TIMEOUT, true)))
       // 其余逐项容错：个别 404 / 超时都不阻塞安装，运行时 fetch 会兜底回填
       await Promise.all([
         ...SHELL.map((p) => preloadOne(c, p, ITEM_TIMEOUT, true).catch(() => {})),
-        ...ASSETS.map((p) => preloadOne(c, p, ITEM_TIMEOUT, false).catch(() => {})),
+        ...ASSETS.map((p) => preloadAsset(c, p, ITEM_TIMEOUT, olds).catch(() => {})),
       ])
     })(),
   )
