@@ -1,1 +1,0 @@
-async function a(c){const o=[];for(let t=0;t<5e4;t+=1e3){const{data:s,count:n,error:e}=await c({from:t,to:t+1e3-1});if(e)throw new Error(e.message);const r=s??[];if(o.push(...r),r.length<1e3||n!=null&&o.length>=n)break}return o}export{a as f};
