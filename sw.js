@@ -5,7 +5,7 @@
  * 发版链路：sw.js 内容每次构建必变 → 浏览器 update 检测到新 SW → install 阶段重新预缓存
  * 新外壳 → skipWaiting 接管 → 页面自动刷新 → 加载新 hash 资源（miss 时走网络并回填缓存）
  */
-const CACHE = 'xundan-' + '1791606173006'
+const CACHE = 'xundan-' + '1791607328628'
 // 外壳底线：只有它必须成功——拿不到 index.html 的新外壳等于「离线打不开」，
 // 宁可让本次安装失败（旧版本继续可用），也不要装出一个空壳。
 const CORE = ['./index.html']
@@ -13,7 +13,7 @@ const CORE = ['./index.html']
 const SHELL = ['./', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png']
 // 构建脚本注入的全量资源清单（./assets/ 下带 hash 的 JS/CSS）。
 // 更新时在 SW 安装阶段后台预取全部资源 → skipWaiting 后 reload 首开全部缓存命中，秒进系统
-const ASSETS = ["./assets/charts-eHvXH4nm.js","./assets/commission-CN7--Isc.js","./assets/Customers-ZDfShmP5.js","./assets/CustomSelect-CdyFBLN8.js","./assets/Dashboard-APvzE4-c.js","./assets/drill-DjX4DMpx.js","./assets/fetchAll-dQkdBPMg.js","./assets/index-D79PW6pw.css","./assets/index-DP0g8FyR.js","./assets/Inquiries-CH8ecyXp.js","./assets/MoneyInput-BL4q1pGu.js","./assets/react-CeblOZo-.js","./assets/RegisterInquiry-Dn34z3BP.js","./assets/Reports-DSSyjQyL.js","./assets/Settings-gbSYswVI.js","./assets/supabase-3Te545q_.js","./assets/xlsx.min-D5PZhLjo.js"]
+const ASSETS = ["./assets/charts-eHvXH4nm.js","./assets/commission-DjadL3iM.js","./assets/Customers-UCVcdq8E.js","./assets/CustomSelect-MgGWONKb.js","./assets/Dashboard-bulVDTnd.js","./assets/drill-C1NjIk-T.js","./assets/fetchAll-dQkdBPMg.js","./assets/index-D79PW6pw.css","./assets/index-pCxIdIEK.js","./assets/Inquiries-eym-FTH1.js","./assets/MoneyInput-aLNLLDXc.js","./assets/react-CeblOZo-.js","./assets/RegisterInquiry-DKFHlGbZ.js","./assets/Reports-CjPzpM9T.js","./assets/Settings-DKHIn17X.js","./assets/supabase-3Te545q_.js","./assets/xlsx.min-D5PZhLjo.js"]
 
 // 单项预缓存，带超时。没有超时是致命的：只要有一个请求卡住（跨境网络很常见），
 // install 就永远不结束 → 新版本 SW 永远进不了 waiting → 前端点「立即更新」只能
