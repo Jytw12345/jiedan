@@ -5,7 +5,7 @@
  * 发版链路：sw.js 内容每次构建必变 → 浏览器 update 检测到新 SW → install 阶段重新预缓存
  * 新外壳 → skipWaiting 接管 → 页面自动刷新 → 加载新 hash 资源（miss 时走网络并回填缓存）
  */
-const CACHE = 'xundan-' + '1792986976840'
+const CACHE = 'xundan-' + '1792987764124'
 // 外壳底线：只有它必须成功——拿不到 index.html 的新外壳等于「离线打不开」，
 // 宁可让本次安装失败（旧版本继续可用），也不要装出一个空壳。
 const CORE = ['./index.html']
@@ -13,7 +13,7 @@ const CORE = ['./index.html']
 const SHELL = ['./', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png']
 // 构建脚本注入的全量资源清单（./assets/ 下带 hash 的 JS/CSS）。
 // 更新时在 SW 安装阶段后台预取全部资源 → skipWaiting 后 reload 首开全部缓存命中，秒进系统
-const ASSETS = ["./assets/Audit-aFcLSQQV.js","./assets/charts-CtnOWxOi.js","./assets/commission-Yu1XWvCD.js","./assets/Customers-DYtTfqDx.js","./assets/CustomSelect-4uPOAl9a.js","./assets/Dashboard-BNN0dhqD.js","./assets/drill-NOajCzvx.js","./assets/fetchAll-dQkdBPMg.js","./assets/index-DerEkqQs.css","./assets/index-VLImflIJ.js","./assets/Inquiries-CswtuJiN.js","./assets/MoneyInput-CL2SUHJ-.js","./assets/react-CeblOZo-.js","./assets/RegisterInquiry-Q7keGT_8.js","./assets/Reports-C8J-eVGa.js","./assets/Settings-DVLkoikx.js","./assets/supabase-3Te545q_.js","./assets/wordlists-MVX42-bH.js","./assets/xlsx.min-D5PZhLjo.js"]
+const ASSETS = ["./assets/Audit-BBeBIRkR.js","./assets/charts-CtnOWxOi.js","./assets/commission-DNDH5FRe.js","./assets/Customers-Cn-SS7WT.js","./assets/CustomSelect-gJ9QFD-N.js","./assets/Dashboard-B7sVUaL_.js","./assets/drill-Dpx4EX3J.js","./assets/fetchAll-dQkdBPMg.js","./assets/index-BfJ8jXn3.js","./assets/index-DerEkqQs.css","./assets/Inquiries-B38L5Kb2.js","./assets/MoneyInput-Cbmxgumm.js","./assets/react-CeblOZo-.js","./assets/RegisterInquiry-B-r5tkos.js","./assets/Reports-yMusznRG.js","./assets/Settings-Bwxw_SUK.js","./assets/supabase-3Te545q_.js","./assets/wordlists-DjTS-poG.js","./assets/xlsx.min-D5PZhLjo.js"]
 
 // 单项预缓存，带超时。没有超时是致命的：只要有一个请求卡住（跨境网络很常见），
 // install 就永远不结束 → 新版本 SW 永远进不了 waiting → 前端点「立即更新」只能
@@ -116,7 +116,9 @@ self.addEventListener('fetch', (e) => {
   }
 
   // 静态子资源（JS/CSS/图片/字体）：文件名含 hash、内容不可变 → 缓存命中即正确，缓存优先。
-  // miss 才走网络（成功写回缓存）；旧版本 hash 文件被删等异常回退外壳，避免裂图卡屏。
+  // miss 才走网络（成功写回缓存）。404/网络失败不回退外壳：把 index.html 当 JS 喂给浏览器
+  // 会因 MIME 不匹配被静默拒绝 → 白屏「一直加载」且毫无报错线索；原样透传 404 至少能在
+  // 控制台看到明确错误（部署不完整的窗口期宁可报错，也不要装出无声白屏）。
   e.respondWith(
     caches.match(e.request).then(
       (r) =>
@@ -127,8 +129,11 @@ self.addEventListener('fetch', (e) => {
             caches.open(CACHE).then((c) => c.put(e.request, copy))
             return res
           }
-          return fallbackShell()
-        }, fallbackShell),
+          return res // 404 等非 2xx：原样透传，让错误可见
+        }, () => new Response('资源加载失败，请检查网络后刷新', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        })),
     ),
   )
 })
